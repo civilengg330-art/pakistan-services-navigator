@@ -1,10 +1,10 @@
 import json
-from llm_client import get_groq_client, DEFAULT_MODEL
+from llm_client import get_groq_client, DEFAULT_MODEL, clean_and_parse_json
 from prompts import AGENT4_SYSTEM_PROMPT
 
-def generate_final_response(user_query: str, agent3_output: dict) -> str:
+def generate_final_response(user_query: str, agent3_output: dict) -> dict:
     """
-    Converts Agent 3 research into a clear, citizen-friendly markdown answer.
+    Converts Agent 3 research into structured dictionary payload for custom Streamlit rendering.
     """
     client = get_groq_client()
     
@@ -20,7 +20,8 @@ def generate_final_response(user_query: str, agent3_output: dict) -> str:
             {"role": "system", "content": AGENT4_SYSTEM_PROMPT},
             {"role": "user", "content": input_payload}
         ],
-        temperature=0.3
+        temperature=0.2
     )
     
-    return response.choices[0].message.content
+    raw_content = response.choices[0].message.content
+    return clean_and_parse_json(raw_content)
